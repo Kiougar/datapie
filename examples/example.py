@@ -1,28 +1,45 @@
-class Super:
-    def __init__(self):
-        self.name = 'Super Class'
+import random
+import string
 
-    def run(self):
-        self.process()
-
-    def process(self):
-        raise NotImplementedError('Class %s must implement the process method' % self.__class__.__name__)
+import gevent
+from datapie import Mine
+from datapie import Miner
 
 
-class SubSuper(Super):
-    def process(self):
-        print(self.name)
+class MyMiner1(Miner):
+    def process(self, data: bytes):
+        return data.upper()
 
 
-class WrongSubSuper(Super):
-    pass
+class MyMiner2(Miner):
+    def process(self, data: bytes):
+        return data.lower()
+
+
+class MyMine(Mine):
+    @staticmethod
+    def random_word(size):
+        return ''.join(random.choice(string.ascii_letters) for _ in range(size))
+
+    def get_data(self):
+        gevent.sleep(3)
+        return (self.random_word(10).lower() + '\r\n').encode()
 
 
 if __name__ == '__main__':
-    # This will run normally
-    ss = SubSuper()
-    ss.run()
+    mine = MyMine(('127.0.0.1', 16000))
+    miner1 = MyMiner1(('127.0.0.1', 16001), mine.address)
+    miner2 = MyMiner2(('127.0.0.1', 16002), miner1.address)
 
-    # The following will raise an error because the process method is not implemented by the sub class
-    ws = WrongSubSuper()
+    print('Starting MyMiner2 on port 16002')
+    miner2.start()
 
+    # delay the miner by 10 seconds to check that miner2 can connect to it successfully
+    gevent.sleep(10)
+    print('Starting MyMiner1 on port 16001')
+    miner1.start()
+
+    # delay the mine by 20 seconds to check that miner can connect to it successfully even if it was started later on
+    gevent.sleep(10)
+    print('Starting MyMine on port 16000...')
+    mine.serve_forever()
