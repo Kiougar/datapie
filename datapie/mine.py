@@ -1,8 +1,7 @@
 from __future__ import print_function
 
-import gevent
-import random
-import string
+import gevent, random, string
+
 from datapie.typings import Address
 from datapie.utils import ClassPrint
 from gevent.server import StreamServer
@@ -65,13 +64,13 @@ class Mine(StreamServer, ClassPrint):
         while True:
             gevent.sleep(3)
             data = ''.join(random.choice(string.ascii_letters) for _ in range(10))
-            # den kserw apo pou tha pairnei data to mine opote eftiaksa merika
+            # den kserw apo pou tha pairnei data to mine opote eftiaksa merika random
             self.print(data)
 
             self.set_data(data)
 
 # gia na to testarw
-if __name__ == '__main__':
-    mine = Mine(('127.0.0.1', 16000))
-    print('Starting MyMine on port 16000...')
-    mine.serve_forever()
+#if __name__ == '__main__':
+    #mine = Mine(('127.0.0.1', 16000))
+    #print('Starting MyMine on port 16000...')
+    #mine.serve_forever()
