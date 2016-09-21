@@ -25,4 +25,4 @@ if __name__ == '__main__':
 
     # The following will raise an error because the process method is not implemented by the sub class
     ws = WrongSubSuper()
-    ws.run()
+
